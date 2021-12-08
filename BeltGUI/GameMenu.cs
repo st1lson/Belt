@@ -35,9 +35,11 @@ namespace BeltGUI
             Invoke((MethodInvoker)(() => Controls.Add(button)));
         }
 
-        private static void CardButtonClick(object sender, EventArgs e)
+        private void CardButtonClick(object sender, EventArgs e)
         {
-            MessageBox.Show("Hello world");
+            Button button = sender as Button;
+            RemoveButton(button);
+            ShowCards(button);
         }
 
         private void StartButtonClick(object sender, EventArgs e)
@@ -45,27 +47,42 @@ namespace BeltGUI
             Button currentButton = sender as Button;
             currentButton?.Hide();
             AddButton(_deck.DeckCards[5]);
-            ShowCards();
+            AddButton(_deck.DeckCards[5]);
+            AddButton(_deck.DeckCards[5]);
+
         }
 
-        private void RemoveButton(int index)
+        private void RemoveButton(Button button)
         {
-            if (index < 0 || index >= _playerCards.Count)
+            int index = _playerCards.IndexOf(button);
+            if (index < 0 || index > _playerCards.Count)
             {
                 return;
             }
 
             _playerCards.RemoveAt(index);
-            Invoke((MethodInvoker)(() => Controls.RemoveAt(index)));
+            int controlIndex = Controls.IndexOf(button!);
+            Invoke((MethodInvoker)(() => Controls.RemoveAt(controlIndex)));
         }
 
-        private void ShowCards()
+        private void ShowCards(Button playedCard = null)
         {
             for (int i = 0; i < _playerCards.Count; i++)
             {
                 Invoke((MethodInvoker)(() => _playerCards[i].Location = new Point(150, 492)));
-                Invoke((MethodInvoker)(() => _playerCards[i].Left = i * 18 + 150));
+                Invoke((MethodInvoker)(() => _playerCards[i].Left = i * 30 + 150));
             }
+
+            if (playedCard is null)
+            {
+                return;
+            }
+
+            Invoke((MethodInvoker)(() => playedCard.Location = playedCards.Location));
+            Invoke((MethodInvoker)(() => playedCard.Left = playedCards.Left + 10));
+            playedCard.Enabled = false;
+
+            Controls.Add(playedCard);
         }
 
         private void InitializeDeck()

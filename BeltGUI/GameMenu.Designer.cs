@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.StartButton = new System.Windows.Forms.Button();
+            this.playedCards = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.playedCards)).BeginInit();
             this.SuspendLayout();
             // 
             // StartButton
@@ -42,14 +44,27 @@
             this.StartButton.UseVisualStyleBackColor = true;
             this.StartButton.Click += new System.EventHandler(this.StartButtonClick);
             // 
+            // playedCards
+            // 
+            this.playedCards.BackColor = System.Drawing.Color.Transparent;
+            this.playedCards.Location = new System.Drawing.Point(479, 207);
+            this.playedCards.Name = "playedCards";
+            this.playedCards.Size = new System.Drawing.Size(105, 155);
+            this.playedCards.TabIndex = 2;
+            this.playedCards.TabStop = false;
+            this.playedCards.Visible = false;
+            // 
             // GameMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.ForestGreen;
             this.ClientSize = new System.Drawing.Size(1064, 681);
+            this.Controls.Add(this.playedCards);
             this.Controls.Add(this.StartButton);
             this.Name = "GameMenu";
             this.Text = "GameMenu";
+            ((System.ComponentModel.ISupportInitialize)(this.playedCards)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -57,5 +72,6 @@
         #endregion
 
         private System.Windows.Forms.Button StartButton;
+        private System.Windows.Forms.PictureBox playedCards;
     }
 }
