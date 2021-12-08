@@ -1,5 +1,5 @@
 ﻿
-namespace BeltUI
+namespace BeltGUI
 {
     partial class MainMenu
     {

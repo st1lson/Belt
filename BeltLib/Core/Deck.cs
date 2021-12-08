@@ -10,7 +10,7 @@ namespace BeltLib.Core
 
         public Deck()
         {
-            DeckCards = new();
+            DeckCards = new List<Card>();
         }
 
         internal void InitializeDeck()

@@ -1,5 +1,4 @@
-﻿
-namespace BeltGUI
+﻿namespace BeltGUI
 {
     partial class GameMenu
     {

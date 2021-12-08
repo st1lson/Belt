@@ -1,7 +1,6 @@
 ﻿using System.Windows.Forms;
-using BeltGUI;
 
-namespace BeltUI
+namespace BeltGUI
 {
     public partial class MainMenu : Form
     {
