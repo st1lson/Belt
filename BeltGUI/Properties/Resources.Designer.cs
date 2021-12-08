@@ -9,6 +9,9 @@
 //------------------------------------------------------------------------------
 
 namespace BeltGUI.Properties {
+    using System;
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -223,16 +226,6 @@ namespace BeltGUI.Properties {
         internal static System.Drawing.Bitmap four_spades {
             get {
                 object obj = ResourceManager.GetObject("four_spades", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Images {
-            get {
-                object obj = ResourceManager.GetObject("Images", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
