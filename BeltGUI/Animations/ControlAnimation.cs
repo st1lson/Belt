@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -6,19 +6,21 @@ namespace BeltGUI.Animations
 {
     internal sealed class ControlAnimation
     {
-        public Control Control { get; }
-        private const int TicksCount = 100;
+        public Control Control { get; internal set; }
+        private const int TicksCount = 20;
         private readonly Timer _timer;
+        private int _currentPointX;
+        private int _currentPointY;
         private int _increaseX;
         private int _increaseY;
-        private int _endPointX;
-        private int _endPointY;
         private int _count;
 
-        public ControlAnimation(Control control)
+        public ControlAnimation()
         {
-            Control = control;
-            _timer = new Timer();
+            _timer = new Timer()
+            {
+                Interval = 10
+            };
             _timer.Tick += TimeTick;
         }
 
@@ -29,8 +31,9 @@ namespace BeltGUI.Animations
                 return;
             }
 
-            _endPointX = endPointX;
-            _endPointY = endPointY;
+            _count = 0;
+            _currentPointX = Control.Location.X;
+            _currentPointY = Control.Location.Y;
             (_increaseX, _increaseY) = 
                 CalculateWay(Control.Location.X, Control.Location.Y, endPointX, endPointY);
 
@@ -40,19 +43,21 @@ namespace BeltGUI.Animations
 
         private void TimeTick(object sender, EventArgs e)
         {
-            if (_count == TicksCount || _endPointX == Control.Location.X && _endPointY == Control.Location.Y)
+            if (_count == TicksCount)
             {
                 _timer.Enabled = false;
             }
 
-            Control.Location = new Point(Control.Location.X + _increaseX, Control.Location.Y + _increaseY);
+            _currentPointX += _increaseX;
+            _currentPointY += _increaseY;
+            Control.Location = new Point(_currentPointX, _currentPointY);
             _count++;
         }
 
         private static (int, int) CalculateWay(int startPointX, int startPointY, int endPointX, int endPointY)
         {
-            int increaseX = Math.Abs(startPointX - endPointX) / TicksCount;
-            int increaseY = Math.Abs(startPointY - endPointY) / TicksCount;
+            int increaseX = (endPointX - startPointX) / TicksCount;
+            int increaseY = (endPointY - startPointY) / TicksCount;
 
             return (increaseX, increaseY);
         }

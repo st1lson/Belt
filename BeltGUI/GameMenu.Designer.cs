@@ -47,7 +47,7 @@
             // playedCards
             // 
             this.playedCards.BackColor = System.Drawing.Color.Transparent;
-            this.playedCards.Location = new System.Drawing.Point(479, 207);
+            this.playedCards.Location = new System.Drawing.Point(500, 250);
             this.playedCards.Name = "playedCards";
             this.playedCards.Size = new System.Drawing.Size(105, 155);
             this.playedCards.TabIndex = 2;

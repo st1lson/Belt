@@ -12,11 +12,15 @@ namespace BeltGUI
     public partial class GameMenu : Form
     {
         private readonly List<Button> _playerCards;
+        private readonly List<Control> _fieldCards;
+        private readonly ControlAnimation _animation;
         private readonly Deck _deck;
         public GameMenu()
         {
             InitializeComponent();
             _playerCards = new List<Button>();
+            _fieldCards = new List<Control>();
+            _animation = new ControlAnimation();
             _deck = new Deck();
             InitializeDeck();
         }
@@ -25,7 +29,7 @@ namespace BeltGUI
         {
             Button button = new()
             {
-                Location = new Point(150 + _playerCards.Count * 18, 492),
+                Location = new Point(140 + _playerCards.Count * 20, 500),
                 Size = new Size(105, 155),
                 BackgroundImage = card.CardFace,
                 BackgroundImageLayout = ImageLayout.Stretch
@@ -61,19 +65,19 @@ namespace BeltGUI
                 return;
             }
 
-            ComponentAnimation animation = new (button);
-            animation.Animate(button.Location.X, button.Location.Y);
-            //_playerCards.RemoveAt(index);
-            //int controlIndex = Controls.IndexOf(button!);
-            //Invoke((MethodInvoker)(() => Controls.RemoveAt(controlIndex)));
+            _animation.Control = button;
+            _animation.Animate(playedCards.Location.X, playedCards.Location.Y);
+            _playerCards.RemoveAt(index);
+            int controlIndex = Controls.IndexOf(button!);
+            Invoke((MethodInvoker)(() => Controls.RemoveAt(controlIndex)));
         }
 
         private void ShowCards(Button playedCard = null)
         {
             for (int i = 0; i < _playerCards.Count; i++)
             {
-                Invoke((MethodInvoker)(() => _playerCards[i].Location = new Point(150, 492)));
-                Invoke((MethodInvoker)(() => _playerCards[i].Left = i * 30 + 150));
+                Invoke((MethodInvoker)(() => _playerCards[i].Location = new Point(140, 500)));
+                Invoke((MethodInvoker)(() => _playerCards[i].Left = i * 20 + 140));
             }
 
             if (playedCard is null)
@@ -82,7 +86,7 @@ namespace BeltGUI
             }
 
             Invoke((MethodInvoker)(() => playedCard.Location = playedCards.Location));
-            Invoke((MethodInvoker)(() => playedCard.Left = playedCards.Left + 10));
+            Invoke((MethodInvoker)(() => playedCard.Left = playedCards.Left + 20));
             playedCard.Enabled = false;
 
             Controls.Add(playedCard);
