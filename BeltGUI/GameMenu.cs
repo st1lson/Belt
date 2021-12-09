@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using BeltGUI.Animations;
 
 namespace BeltGUI
 {
@@ -60,9 +61,11 @@ namespace BeltGUI
                 return;
             }
 
-            _playerCards.RemoveAt(index);
-            int controlIndex = Controls.IndexOf(button!);
-            Invoke((MethodInvoker)(() => Controls.RemoveAt(controlIndex)));
+            ComponentAnimation animation = new (button);
+            animation.Animate(button.Location.X, button.Location.Y);
+            //_playerCards.RemoveAt(index);
+            //int controlIndex = Controls.IndexOf(button!);
+            //Invoke((MethodInvoker)(() => Controls.RemoveAt(controlIndex)));
         }
 
         private void ShowCards(Button playedCard = null)
