@@ -30,7 +30,11 @@
         {
             this.StartButton = new System.Windows.Forms.Button();
             this.playedCards = new System.Windows.Forms.PictureBox();
+            this.deck = new System.Windows.Forms.PictureBox();
+            this.pile = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.playedCards)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.deck)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pile)).BeginInit();
             this.SuspendLayout();
             // 
             // StartButton
@@ -54,17 +58,41 @@
             this.playedCards.TabStop = false;
             this.playedCards.Visible = false;
             // 
+            // deck
+            // 
+            this.deck.BackColor = System.Drawing.Color.Transparent;
+            this.deck.Location = new System.Drawing.Point(20, 250);
+            this.deck.Name = "deck";
+            this.deck.Size = new System.Drawing.Size(105, 155);
+            this.deck.TabIndex = 3;
+            this.deck.TabStop = false;
+            this.deck.Visible = false;
+            // 
+            // pile
+            // 
+            this.pile.BackColor = System.Drawing.Color.Transparent;
+            this.pile.Location = new System.Drawing.Point(940, 250);
+            this.pile.Name = "pile";
+            this.pile.Size = new System.Drawing.Size(105, 155);
+            this.pile.TabIndex = 4;
+            this.pile.TabStop = false;
+            this.pile.Visible = false;
+            // 
             // GameMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.ForestGreen;
             this.ClientSize = new System.Drawing.Size(1064, 681);
+            this.Controls.Add(this.pile);
+            this.Controls.Add(this.deck);
             this.Controls.Add(this.playedCards);
             this.Controls.Add(this.StartButton);
             this.Name = "GameMenu";
             this.Text = "GameMenu";
             ((System.ComponentModel.ISupportInitialize)(this.playedCards)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.deck)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pile)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -73,5 +101,7 @@
 
         private System.Windows.Forms.Button StartButton;
         private System.Windows.Forms.PictureBox playedCards;
+        private System.Windows.Forms.PictureBox deck;
+        private System.Windows.Forms.PictureBox pile;
     }
 }

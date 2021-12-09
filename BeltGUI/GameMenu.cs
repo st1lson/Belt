@@ -11,14 +11,14 @@ namespace BeltGUI
 {
     public partial class GameMenu : Form
     {
-        private readonly List<Button> _playerCards;
+        private readonly List<Control> _playerCards;
         private readonly List<Control> _fieldCards;
         private readonly ControlAnimation _animation;
         private readonly Deck _deck;
         public GameMenu()
         {
             InitializeComponent();
-            _playerCards = new List<Button>();
+            _playerCards = new List<Control>();
             _fieldCards = new List<Control>();
             _animation = new ControlAnimation();
             _deck = new Deck();
@@ -36,6 +36,9 @@ namespace BeltGUI
             };
 
             button.Click += CardButtonClick;
+            button.TabStop = false;
+            button.FlatStyle = FlatStyle.Flat;
+            button.FlatAppearance.BorderSize = 0;
             _playerCards.Add(button);
             Invoke((MethodInvoker)(() => Controls.Add(button)));
         }
@@ -43,8 +46,7 @@ namespace BeltGUI
         private void CardButtonClick(object sender, EventArgs e)
         {
             Button button = sender as Button;
-            RemoveButton(button);
-            ShowCards(button);
+            MoveToField(button);
         }
 
         private void StartButtonClick(object sender, EventArgs e)
@@ -52,44 +54,51 @@ namespace BeltGUI
             Button currentButton = sender as Button;
             currentButton?.Hide();
             AddButton(_deck.DeckCards[5]);
+            AddButton(_deck.DeckCards[0]);
             AddButton(_deck.DeckCards[5]);
-            AddButton(_deck.DeckCards[5]);
-
         }
 
-        private void RemoveButton(Button button)
+        private void MoveToPile(Control control)
         {
-            int index = _playerCards.IndexOf(button);
+            int index = _fieldCards.IndexOf(control);
+            if (index < 0 || index > _fieldCards.Count)
+            {
+                return;
+            }
+
+            _animation.Control = control;
+            _animation.Animate(deck.Location.X, deck.Location.Y);
+            _fieldCards.RemoveAt(index);
+        }
+
+        private void MoveFromDeck()
+        {
+            _animation.Control = deck;
+            _animation.Animate(deck.Location.X, deck.Location.Y);
+        }
+
+        private void MoveToField(Control control)
+        {
+            int index = _playerCards.IndexOf(control);
             if (index < 0 || index > _playerCards.Count)
             {
                 return;
             }
 
-            _animation.Control = button;
-            _animation.Animate(playedCards.Location.X, playedCards.Location.Y);
+            _animation.Control = control;
+            _animation.Animate(playedCards.Location.X + _fieldCards.Count * 20, playedCards.Location.Y);
+            control.Enabled = false;
             _playerCards.RemoveAt(index);
-            int controlIndex = Controls.IndexOf(button!);
-            Invoke((MethodInvoker)(() => Controls.RemoveAt(controlIndex)));
+            _fieldCards.Add(control);
         }
 
-        private void ShowCards(Button playedCard = null)
+        private void ShowCards()
         {
             for (int i = 0; i < _playerCards.Count; i++)
             {
                 Invoke((MethodInvoker)(() => _playerCards[i].Location = new Point(140, 500)));
                 Invoke((MethodInvoker)(() => _playerCards[i].Left = i * 20 + 140));
             }
-
-            if (playedCard is null)
-            {
-                return;
-            }
-
-            Invoke((MethodInvoker)(() => playedCard.Location = playedCards.Location));
-            Invoke((MethodInvoker)(() => playedCard.Left = playedCards.Left + 20));
-            playedCard.Enabled = false;
-
-            Controls.Add(playedCard);
         }
 
         private void InitializeDeck()
