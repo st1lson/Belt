@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using BeltLib.Core;
+﻿using BeltLib.Core;
+using System.Collections.Generic;
 
 namespace BeltLib
 {

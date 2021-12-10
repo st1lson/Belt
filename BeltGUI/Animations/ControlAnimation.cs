@@ -34,7 +34,7 @@ namespace BeltGUI.Animations
             _count = 0;
             _currentPointX = Control.Location.X;
             _currentPointY = Control.Location.Y;
-            (_increaseX, _increaseY) = 
+            (_increaseX, _increaseY) =
                 CalculateWay(Control.Location.X, Control.Location.Y, endPointX, endPointY);
 
             _timer.Interval = 10;
