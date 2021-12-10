@@ -49,7 +49,6 @@ namespace BeltGUI
 
             button.Click += CardButtonClick;
             button.FlatAppearance.BorderSize = 0;
-            _playerCards.Add(button);
             Invoke((MethodInvoker)(() => Controls.Add(button)));
 
             return button;
@@ -57,6 +56,8 @@ namespace BeltGUI
 
         private void CardButtonClick(object sender, EventArgs e)
         {
+            Control control = sender as Control;
+            MoveToField(control);
             CurrentPlayer = CurrentPlayer.Equals(PlayerType.Player) ? PlayerType.Bot : PlayerType.Player;
         }
 
@@ -122,15 +123,6 @@ namespace BeltGUI
             control.Enabled = false;
             _playerCards.RemoveAt(index);
             _fieldCards.Add(control);
-        }
-
-        private void ShowCards()
-        {
-            for (int i = 0; i < _playerCards.Count; i++)
-            {
-                Invoke((MethodInvoker)(() => _playerCards[i].Location = new Point(140, 500)));
-                Invoke((MethodInvoker)(() => _playerCards[i].Left = i * 20 + 140));
-            }
         }
 
         private void InitializeDeck()
