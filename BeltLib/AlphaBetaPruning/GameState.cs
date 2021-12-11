@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
-using BeltLib.Core;
+﻿using BeltLib.Core;
 
 namespace BeltLib.AlphaBetaPruning
 {
-    internal record GameState(List<Card> CardsInHand, List<Card> CardsOnField);
+    internal record GameState(Card[] CardsInHand, Card[] CardsOnField);
 }

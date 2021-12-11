@@ -1,7 +1,8 @@
-﻿using BeltLib.Core;
+﻿using BeltLib.AlphaBetaPruning;
+using BeltLib.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using BeltLib.AlphaBetaPruning;
 
 namespace BeltLib
 {
@@ -23,7 +24,7 @@ namespace BeltLib
                 return default;
             }
 
-            GameState state = new(botCards, fieldCards);
+            GameState state = new(botCards.ToArray(), fieldCards.ToArray());
             GameTree<GameState> gameTree = new(GenerateChildren, GeneratePossibleHandCards, GetCard);
 
             GameState bestState = gameTree.GetTheBest(state);
@@ -33,12 +34,27 @@ namespace BeltLib
 
         private Card GetCard() => _deck.DeckCards.FirstOrDefault();
 
-        private static List<GameState> GenerateChildren(GameState state)
+        private static GameState[] GenerateChildren(GameState state)
         {
-            return default;
+            GameState[] children = new GameState[state.CardsInHand.Length];
+            (Card[] handCards, Card[] fieldCards) = state;
+            for (int i = 0; i < handCards.Length; i++)
+            {
+                Card card = handCards[i];
+                int index = Array.IndexOf(handCards, card);
+                Card[] newHandCards = new Card[handCards.Length];
+                Card[] newFieldCards = new Card[fieldCards.Length + 1];
+                Array.Copy(handCards, newHandCards, handCards.Length);
+                Array.Copy(fieldCards, newFieldCards, fieldCards.Length);
+                newHandCards = newHandCards.Where(x => x != newHandCards[index]).ToArray();
+                newFieldCards[^1] = card;
+                children[i] = new GameState(newHandCards, newFieldCards);
+            }
+
+            return children;
         }
 
-        private static List<GameState> GeneratePossibleHandCards(GameState state)
+        private static GameState[] GeneratePossibleHandCards(GameState state)
         {
             return default;
         }

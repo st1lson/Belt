@@ -4,7 +4,7 @@ using System.Drawing;
 
 namespace BeltLib.Core
 {
-    public sealed class Card
+    public class Card
     {
         public Suit Suit { get; }
         public CardType Type { get; }

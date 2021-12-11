@@ -1,6 +1,7 @@
 ﻿using BeltGUI.Animations;
 using BeltGUI.Enums;
 using BeltGUI.Properties;
+using BeltLib;
 using BeltLib.Core;
 using BeltLib.Enums;
 using System;
@@ -8,18 +9,16 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using BeltLib;
 
 namespace BeltGUI
 {
     public partial class GameMenu : Form
     {
         public PlayerType CurrentPlayer { get; private set; }
+        public List<Card> Cards { get; }
         private readonly List<Control> _playerCards;
         private readonly List<Control> _botCards;
         private readonly List<Control> _fieldCards;
-        private readonly ControlAnimation animation;
-        private readonly List<Card> _cards;
         private readonly Deck _deck;
         private readonly GameLogic _gameLogic;
         public GameMenu()
@@ -30,11 +29,31 @@ namespace BeltGUI
             _playerCards = new List<Control>();
             _botCards = new List<Control>();
             _fieldCards = new List<Control>();
-            animation = new ControlAnimation();
-            _cards = new List<Card>();
+            Cards = new List<Card>();
             _deck = new Deck();
             _gameLogic = new GameLogic(_deck);
             InitializeDeck();
+        }
+
+        private void InitializeGame()
+        {
+            CurrentPlayer = PlayerType.Bot;
+            for (int i = 0; i < 4; i++)
+            {
+                Card card = _deck.DeckCards.FirstOrDefault();
+                _deck.DeckCards.Remove(card);
+                Control control = AddButton(card);
+                MoveFromDeck(control, card);
+            }
+
+            CurrentPlayer = PlayerType.Player;
+            for (int i = 0; i < 4; i++)
+            {
+                Card card = _deck.DeckCards.FirstOrDefault();
+                _deck.DeckCards.Remove(card);
+                Control control = AddButton(card);
+                MoveFromDeck(control, card);
+            }
         }
 
         private Control AddButton(Card card)
@@ -62,6 +81,7 @@ namespace BeltGUI
         {
             Control control = sender as Control;
             MoveToField(control);
+            _gameLogic.SelectCard(ConvertToCard(_botCards), ConvertToCard(_fieldCards));
             CurrentPlayer = CurrentPlayer.Equals(PlayerType.Player) ? PlayerType.Bot : PlayerType.Player;
         }
 
@@ -69,22 +89,8 @@ namespace BeltGUI
         {
             Button currentButton = sender as Button;
             currentButton?.Hide();
+            InitializeGame();
             deck.Show();
-        }
-
-        private void MoveToPile(Control control, Card card)
-        {
-            int index = _fieldCards.IndexOf(control);
-            if (index < 0 || index > _fieldCards.Count)
-            {
-                return;
-            }
-
-            animation.Control = control;
-            animation.Animate(pile.Location.X, pile.Location.Y);
-
-            _fieldCards.RemoveAt(index);
-            control.BackgroundImage = card.CardBack;
         }
 
         private void MoveFromDeck(Control control, Card card)
@@ -102,7 +108,10 @@ namespace BeltGUI
                 multiplier = _botCards.Count;
             }
 
-            animation.Control = control;
+            ControlAnimation animation = new()
+            {
+                Control = control
+            };
             animation.Animate(endPoint.X + multiplier * 20, endPoint.Y);
 
             if (CurrentPlayer.Equals(PlayerType.Player))
@@ -134,7 +143,10 @@ namespace BeltGUI
             }
 
             control.Enabled = false;
-            animation.Control = control;
+            ControlAnimation animation = new()
+            {
+                Control = control
+            };
             animation.Animate(fieldCards.Location.X + _fieldCards.Count * 20, fieldCards.Location.Y);
 
             _fieldCards.Add(control);
@@ -151,7 +163,7 @@ namespace BeltGUI
                         (Bitmap)Resources.ResourceManager.GetObject($"{type.ToString().ToLower()}_{suit.ToString().ToLower()}");
                     Card card = new(suit, type, cardFace!, cardBack!);
                     _deck.DeckCards.Add(card);
-                    _cards.Add(card);
+                    Cards.Add(card);
                 }
             }
 
@@ -170,6 +182,18 @@ namespace BeltGUI
             _deck.DeckCards.Remove(card);
             Control control = AddButton(card);
             MoveFromDeck(control, card);
+        }
+
+        private List<Card> ConvertToCard(List<Control> controls)
+        {
+            List<Card> cards = new();
+            foreach (Control control in controls)
+            {
+                Card card = Cards.Find(x => x.ToString().Equals(control?.Name));
+                cards.Add(card);
+            }
+
+            return cards;
         }
     }
 }
