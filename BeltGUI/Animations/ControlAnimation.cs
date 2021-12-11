@@ -1,6 +1,5 @@
 using System;
 using System.Drawing;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BeltGUI.Animations
@@ -8,7 +7,6 @@ namespace BeltGUI.Animations
     internal sealed class ControlAnimation
     {
         public Control Control { get; internal set; }
-        public bool Active => _timer.Enabled;
         private readonly Timer _timer;
         private const int TicksCount = 20;
         private int _currentPointX;

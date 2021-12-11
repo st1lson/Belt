@@ -7,8 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using BeltLib;
 
@@ -64,8 +62,6 @@ namespace BeltGUI
         {
             Control control = sender as Control;
             MoveToField(control);
-            Card card = _cards.Find(x => x.ToString().Equals(control?.Name));
-            MoveToPile(control, card);
             CurrentPlayer = CurrentPlayer.Equals(PlayerType.Player) ? PlayerType.Bot : PlayerType.Player;
         }
 
