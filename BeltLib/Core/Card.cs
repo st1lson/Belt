@@ -24,5 +24,10 @@ namespace BeltLib.Core
             CardFace = cardFace;
             CardBack = cardBack;
         }
+
+        public override string ToString()
+        {
+            return $"{Type} {Suit}";
+        }
     }
 }

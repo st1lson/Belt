@@ -7,8 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using BeltLib;
 
 namespace BeltGUI
 {
@@ -18,8 +20,10 @@ namespace BeltGUI
         private readonly List<Control> _playerCards;
         private readonly List<Control> _botCards;
         private readonly List<Control> _fieldCards;
-        private readonly ControlAnimation _animation;
+        private readonly ControlAnimation animation;
+        private readonly List<Card> _cards;
         private readonly Deck _deck;
+        private readonly GameLogic _gameLogic;
         public GameMenu()
         {
             InitializeComponent();
@@ -28,8 +32,10 @@ namespace BeltGUI
             _playerCards = new List<Control>();
             _botCards = new List<Control>();
             _fieldCards = new List<Control>();
-            _animation = new ControlAnimation();
+            animation = new ControlAnimation();
+            _cards = new List<Card>();
             _deck = new Deck();
+            _gameLogic = new GameLogic(_deck);
             InitializeDeck();
         }
 
@@ -47,17 +53,19 @@ namespace BeltGUI
                 Enabled = false
             };
 
-            button.Click += CardButtonClick;
+            button.Click += CardClick;
             button.FlatAppearance.BorderSize = 0;
             Invoke((MethodInvoker)(() => Controls.Add(button)));
 
             return button;
         }
 
-        private void CardButtonClick(object sender, EventArgs e)
+        private void CardClick(object sender, EventArgs e)
         {
             Control control = sender as Control;
             MoveToField(control);
+            Card card = _cards.Find(x => x.ToString().Equals(control?.Name));
+            MoveToPile(control, card);
             CurrentPlayer = CurrentPlayer.Equals(PlayerType.Player) ? PlayerType.Bot : PlayerType.Player;
         }
 
@@ -68,7 +76,7 @@ namespace BeltGUI
             deck.Show();
         }
 
-        private void MoveToPile(Control control)
+        private void MoveToPile(Control control, Card card)
         {
             int index = _fieldCards.IndexOf(control);
             if (index < 0 || index > _fieldCards.Count)
@@ -76,9 +84,11 @@ namespace BeltGUI
                 return;
             }
 
-            _animation.Control = control;
-            _animation.Animate(deck.Location.X, deck.Location.Y);
+            animation.Control = control;
+            animation.Animate(pile.Location.X, pile.Location.Y);
+
             _fieldCards.RemoveAt(index);
+            control.BackgroundImage = card.CardBack;
         }
 
         private void MoveFromDeck(Control control, Card card)
@@ -96,12 +106,12 @@ namespace BeltGUI
                 multiplier = _botCards.Count;
             }
 
-            _animation.Control = control;
-            _animation.Animate(endPoint.X + multiplier * 20, endPoint.Y);
+            animation.Control = control;
+            animation.Animate(endPoint.X + multiplier * 20, endPoint.Y);
+
             if (CurrentPlayer.Equals(PlayerType.Player))
             {
                 _playerCards.Add(control);
-                Task.Delay(1000);
                 control.BackgroundImage = card.CardFace;
                 control.Enabled = true;
                 return;
@@ -112,16 +122,25 @@ namespace BeltGUI
 
         private void MoveToField(Control control)
         {
-            int index = _playerCards.IndexOf(control);
+            int index = CurrentPlayer.Equals(PlayerType.Player) ? _playerCards.IndexOf(control) : _botCards.IndexOf(control);
             if (index < 0 || index > _playerCards.Count)
             {
                 return;
             }
 
-            _animation.Control = control;
-            _animation.Animate(playedCards.Location.X + _fieldCards.Count * 20, playedCards.Location.Y);
+            if (CurrentPlayer.Equals(PlayerType.Player))
+            {
+                _playerCards.RemoveAt(index);
+            }
+            else
+            {
+                _botCards.RemoveAt(index);
+            }
+
             control.Enabled = false;
-            _playerCards.RemoveAt(index);
+            animation.Control = control;
+            animation.Animate(fieldCards.Location.X + _fieldCards.Count * 20, fieldCards.Location.Y);
+
             _fieldCards.Add(control);
         }
 
@@ -134,7 +153,9 @@ namespace BeltGUI
                 {
                     Bitmap cardFace =
                         (Bitmap)Resources.ResourceManager.GetObject($"{type.ToString().ToLower()}_{suit.ToString().ToLower()}");
-                    _deck.DeckCards.Add(new Card(suit, type, cardFace!, cardBack!));
+                    Card card = new(suit, type, cardFace!, cardBack!);
+                    _deck.DeckCards.Add(card);
+                    _cards.Add(card);
                 }
             }
 
@@ -146,9 +167,11 @@ namespace BeltGUI
             Card card = _deck.DeckCards.FirstOrDefault();
             if (card is null)
             {
+                deck.Visible = false;
                 return;
             }
 
+            _deck.DeckCards.Remove(card);
             Control control = AddButton(card);
             MoveFromDeck(control, card);
         }

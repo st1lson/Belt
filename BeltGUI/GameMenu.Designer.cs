@@ -29,12 +29,12 @@
         private void InitializeComponent()
         {
             this.StartButton = new System.Windows.Forms.Button();
-            this.playedCards = new System.Windows.Forms.PictureBox();
+            this.fieldCards = new System.Windows.Forms.PictureBox();
             this.deck = new System.Windows.Forms.PictureBox();
             this.pile = new System.Windows.Forms.PictureBox();
             this.playerCards = new System.Windows.Forms.PictureBox();
             this.botCards = new System.Windows.Forms.PictureBox();
-            ((System.ComponentModel.ISupportInitialize)(this.playedCards)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fieldCards)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.deck)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pile)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.playerCards)).BeginInit();
@@ -52,15 +52,15 @@
             this.StartButton.UseVisualStyleBackColor = true;
             this.StartButton.Click += new System.EventHandler(this.StartButtonClick);
             // 
-            // playedCards
+            // fieldCards
             // 
-            this.playedCards.BackColor = System.Drawing.Color.Transparent;
-            this.playedCards.Location = new System.Drawing.Point(500, 250);
-            this.playedCards.Name = "playedCards";
-            this.playedCards.Size = new System.Drawing.Size(105, 155);
-            this.playedCards.TabIndex = 2;
-            this.playedCards.TabStop = false;
-            this.playedCards.Visible = false;
+            this.fieldCards.BackColor = System.Drawing.Color.Transparent;
+            this.fieldCards.Location = new System.Drawing.Point(333, 250);
+            this.fieldCards.Name = "fieldCards";
+            this.fieldCards.Size = new System.Drawing.Size(105, 155);
+            this.fieldCards.TabIndex = 2;
+            this.fieldCards.TabStop = false;
+            this.fieldCards.Visible = false;
             // 
             // deck
             // 
@@ -76,7 +76,8 @@
             // pile
             // 
             this.pile.BackColor = System.Drawing.Color.Transparent;
-            this.pile.Location = new System.Drawing.Point(940, 250);
+            this.pile.BackgroundImage = global::BeltGUI.Properties.Resources.back;
+            this.pile.Location = new System.Drawing.Point(920, 250);
             this.pile.Name = "pile";
             this.pile.Size = new System.Drawing.Size(105, 155);
             this.pile.TabIndex = 4;
@@ -113,11 +114,11 @@
             this.Controls.Add(this.playerCards);
             this.Controls.Add(this.pile);
             this.Controls.Add(this.deck);
-            this.Controls.Add(this.playedCards);
+            this.Controls.Add(this.fieldCards);
             this.Controls.Add(this.StartButton);
             this.Name = "GameMenu";
             this.Text = "GameMenu";
-            ((System.ComponentModel.ISupportInitialize)(this.playedCards)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fieldCards)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.deck)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pile)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.playerCards)).EndInit();
@@ -129,7 +130,7 @@
         #endregion
 
         private System.Windows.Forms.Button StartButton;
-        private System.Windows.Forms.PictureBox playedCards;
+        private System.Windows.Forms.PictureBox fieldCards;
         private System.Windows.Forms.PictureBox deck;
         private System.Windows.Forms.PictureBox pile;
         private System.Windows.Forms.PictureBox playerCards;
