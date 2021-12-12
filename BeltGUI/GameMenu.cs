@@ -83,11 +83,45 @@ namespace BeltGUI
 
         private void CardClick(object sender, EventArgs e)
         {
+            if (_deck.DeckCards.Count == 0)
+            {
+                deck.Visible = false;
+                deck.Enabled = false;
+            }
+
             Control control = sender as Control;
             Controls.SetChildIndex(control!, _fieldCards.Count);
             MoveToField(control);
+            while (_playerCards.Count < 4 && _deck.DeckCards.Count != 0)
+            {
+                Card card = _deck.DeckCards.FirstOrDefault();
+                _deck.DeckCards.Remove(card);
+                Control newControl = AddButton(card);
+                MoveFromDeck(newControl, card);
+            }
+
             CurrentPlayer = CurrentPlayer.Equals(PlayerType.Player) ? PlayerType.Bot : PlayerType.Player;
             BotMove();
+            if (_botCards.Count != 0 || _playerCards.Count != 0)
+            {
+                return;
+            }
+
+            Winner winner = SelectWinner();
+            switch (winner)
+            {
+                case Winner.Draw:
+                    MessageBox.Show(Resources.Draw_Message);
+                    return;
+                case Winner.Bot:
+                    MessageBox.Show(Resources.Bot_WinMessage);
+                    return;
+                case Winner.Player:
+                    MessageBox.Show(Resources.Player_WinMessage);
+                    return;
+                default:
+                    throw new Exception();
+            }
         }
 
         private void BotMove()
@@ -102,7 +136,70 @@ namespace BeltGUI
             botControl.BackgroundImage = card.CardFace;
             Controls.SetChildIndex(botControl, _fieldCards.Count);
             MoveToField(botControl);
+            List<Control> controls = TryGetCards(_botCards, card.Type);
+            if (controls is not null)
+            {
+                MoveToStash(controls);
+            }
+
+            while (_botCards.Count < 4 && _deck.DeckCards.Count != 0)
+            {
+                Card newCard = _deck.DeckCards.FirstOrDefault();
+                _deck.DeckCards.Remove(newCard);
+                Control newControl = AddButton(newCard);
+                MoveFromDeck(newControl, newCard);
+            }
+
             CurrentPlayer = CurrentPlayer.Equals(PlayerType.Player) ? PlayerType.Bot : PlayerType.Player;
+        }
+
+        private List<Control> TryGetCards(IEnumerable<Control> controls, CardType cardType)
+        {
+            int counter = controls.Select(control => Cards.Find(x => x.ToString().Equals(control?.Name))!.Type).Count(fieldCardType => fieldCardType == cardType);
+
+            if (counter < 2)
+            {
+                return default;
+            }
+
+            Dictionary<CardType, short> dictionary = new();
+            foreach (Control fieldCard in _fieldCards)
+            {
+                CardType fieldCardType = Cards.Find(x => x.ToString().Equals(fieldCard?.Name))!.Type;
+                if (fieldCardType >= cardType)
+                {
+                    continue;
+                }
+
+                if (dictionary.ContainsKey(fieldCardType))
+                {
+                    dictionary[fieldCardType] += 1;
+                }
+                else
+                {
+                    dictionary.Add(fieldCardType, 1);
+                }
+            }
+
+            List<Control> fieldControls = new();
+            foreach (var (key, value) in dictionary)
+            {
+                if (value < 3)
+                {
+                    continue;
+                }
+
+                foreach (Control fieldCard in _fieldCards)
+                {
+                    CardType fieldCardType = Cards.Find(x => x.ToString().Equals(fieldCard?.Name))!.Type;
+                    if (fieldCardType == key)
+                    {
+                        fieldControls.Add(fieldCards);
+                    }
+                }
+            }
+
+            return fieldControls;
         }
 
         private void StartButtonClick(object sender, EventArgs e)
@@ -153,13 +250,16 @@ namespace BeltGUI
                 return;
             }
 
+            List<Control> controls;
             if (CurrentPlayer.Equals(PlayerType.Player))
             {
                 _playerCards.RemoveAt(index);
+                controls = _playerCards;
             }
             else
             {
                 _botCards.RemoveAt(index);
+                controls = _botCards;
             }
 
             control.Enabled = false;
@@ -168,19 +268,38 @@ namespace BeltGUI
                 Control = control
             };
             animation.Animate(fieldCards.Location.X + _fieldCards.Count * 20, fieldCards.Location.Y);
+            RefreshControls(controls, index);
 
             _fieldCards.Add(control);
         }
 
-        private void MoveToStore(List<Control> controls)
+        private void RefreshControls(IReadOnlyList<Control> controls, int index)
         {
-            foreach (Control control in controls)
+            for (int i = 0; i < controls.Count; i++)
             {
-                MoveToStore(control);
+                if (i < index)
+                {
+                    continue;
+                }
+
+                Controls.SetChildIndex(controls[i], Math.Abs(i - controls.Count));
+                ControlAnimation animation = new()
+                {
+                    Control = controls[i]
+                };
+                animation.Animate(controls[i].Location.X - 20, controls[i].Location.Y);
             }
         }
 
-        private void MoveToStore(Control control)
+        private void MoveToStash(List<Control> controls)
+        {
+            foreach (Control control in controls)
+            {
+                MoveToStash(control);
+            }
+        }
+
+        private void MoveToStash(Control control)
         {
             int index = _fieldCards.IndexOf(control);
             if (index < 0 || index > _fieldCards.Count)
@@ -194,22 +313,26 @@ namespace BeltGUI
                 _playerCards.RemoveAt(index);
                 _playerStore.Add(control);
                 destinationPoint = playerStore.Location;
+                playerStore.Visible = true;
             }
             else
             {
                 _botCards.RemoveAt(index);
                 _botStore.Add(control);
                 destinationPoint = botStore.Location;
+                botStore.Visible = true;
             }
 
             _fieldCards.RemoveAt(index);
             control.BackgroundImage = Resources.back;
+            control.Enabled = false;
             ControlAnimation animation = new()
             {
                 Control = control
             };
 
             animation.Animate(destinationPoint.X, destinationPoint.Y);
+            RefreshControls(_fieldCards, index);
         }
 
         private void InitializeDeck()

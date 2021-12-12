@@ -111,6 +111,24 @@ namespace BeltGUI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Bot won. You lost.
+        /// </summary>
+        internal static string Bot_WinMessage {
+            get {
+                return ResourceManager.GetString("Bot_WinMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No winner in this game. Draw!.
+        /// </summary>
+        internal static string Draw_Message {
+            get {
+                return ResourceManager.GetString("Draw_Message", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap eight_clubs {
@@ -347,6 +365,15 @@ namespace BeltGUI.Properties {
             get {
                 object obj = ResourceManager.GetObject("nine_spades", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to You won. Congratulations.
+        /// </summary>
+        internal static string Player_WinMessage {
+            get {
+                return ResourceManager.GetString("Player_WinMessage", resourceCulture);
             }
         }
         
