@@ -19,21 +19,21 @@ namespace BeltGUI
         private readonly List<Control> _playerCards;
         private readonly List<Control> _botCards;
         private readonly List<Control> _fieldCards;
-        private readonly List<Control> _playerStore;
-        private readonly List<Control> _botStore;
+        private readonly List<Control> _playerStash;
+        private readonly List<Control> _botStash;
         private readonly GameLogic _gameLogic;
         private readonly Deck _deck;
         public GameMenu()
         {
             InitializeComponent();
-            deck.Hide();
+            deckPlace.Hide();
             CurrentPlayer = PlayerType.Player;
             Cards = new List<Card>();
             _playerCards = new List<Control>();
             _botCards = new List<Control>();
             _fieldCards = new List<Control>();
-            _playerStore = new List<Control>();
-            _botStore = new List<Control>();
+            _playerStash = new List<Control>();
+            _botStash = new List<Control>();
             _deck = new Deck();
             _gameLogic = new GameLogic(_deck);
             InitializeDeck();
@@ -65,8 +65,8 @@ namespace BeltGUI
             Button button = new()
             {
                 Name = card.ToString(),
-                Location = deck.Location,
-                Size = deck.Size,
+                Location = deckPlace.Location,
+                Size = deckPlace.Size,
                 BackgroundImage = card.CardBack,
                 BackgroundImageLayout = ImageLayout.Stretch,
                 FlatStyle = FlatStyle.Popup,
@@ -85,22 +85,29 @@ namespace BeltGUI
         {
             if (_deck.DeckCards.Count == 0)
             {
-                deck.Visible = false;
-                deck.Enabled = false;
+                deckPlace.Visible = false;
+                deckPlace.Enabled = false;
             }
 
             Control control = sender as Control;
+            Card card = _gameLogic.SelectCard(ConvertToCard(_playerCards), ConvertToCard(_fieldCards));
             Controls.SetChildIndex(control!, _fieldCards.Count);
             MoveToField(control);
-            while (_playerCards.Count < 4 && _deck.DeckCards.Count != 0)
+            List<Control> controls = TryGetCards(_playerCards, card.Type);
+            if (controls is not null)
             {
-                Card card = _deck.DeckCards.FirstOrDefault();
-                _deck.DeckCards.Remove(card);
-                Control newControl = AddButton(card);
-                MoveFromDeck(newControl, card);
+                MoveToStash(controls);
             }
 
-            CurrentPlayer = CurrentPlayer.Equals(PlayerType.Player) ? PlayerType.Bot : PlayerType.Player;
+            while (_playerCards.Count < 4 && _deck.DeckCards.Count != 0)
+            {
+                Card newCard = _deck.DeckCards.FirstOrDefault();
+                _deck.DeckCards.Remove(newCard);
+                Control newControl = AddButton(newCard);
+                MoveFromDeck(newControl, newCard);
+            }
+
+            CurrentPlayer = PlayerType.Bot;
             BotMove();
             if (_botCards.Count != 0 || _playerCards.Count != 0)
             {
@@ -150,14 +157,14 @@ namespace BeltGUI
                 MoveFromDeck(newControl, newCard);
             }
 
-            CurrentPlayer = CurrentPlayer.Equals(PlayerType.Player) ? PlayerType.Bot : PlayerType.Player;
+            CurrentPlayer = PlayerType.Player;
         }
 
         private List<Control> TryGetCards(IEnumerable<Control> controls, CardType cardType)
         {
             int counter = controls.Select(control => Cards.Find(x => x.ToString().Equals(control?.Name))!.Type).Count(fieldCardType => fieldCardType == cardType);
 
-            if (counter < 2)
+            if (counter < 3)
             {
                 return default;
             }
@@ -173,7 +180,7 @@ namespace BeltGUI
 
                 if (dictionary.ContainsKey(fieldCardType))
                 {
-                    dictionary[fieldCardType] += 1;
+                    dictionary[fieldCardType]++;
                 }
                 else
                 {
@@ -192,9 +199,9 @@ namespace BeltGUI
                 foreach (Control fieldCard in _fieldCards)
                 {
                     CardType fieldCardType = Cards.Find(x => x.ToString().Equals(fieldCard?.Name))!.Type;
-                    if (fieldCardType == key)
+                    if (fieldCardType == key && !fieldControls.Contains(fieldCard))
                     {
-                        fieldControls.Add(fieldCards);
+                        fieldControls.Add(fieldCard);
                     }
                 }
             }
@@ -207,7 +214,7 @@ namespace BeltGUI
             Button currentButton = sender as Button;
             currentButton?.Hide();
             InitializeGame();
-            deck.Show();
+            deckPlace.Show();
         }
 
         private void MoveFromDeck(Control control, Card card)
@@ -216,12 +223,12 @@ namespace BeltGUI
             int multiplier;
             if (CurrentPlayer.Equals(PlayerType.Player))
             {
-                endPoint = playerCards.Location;
+                endPoint = playerCardsPlace.Location;
                 multiplier = _playerCards.Count;
             }
             else
             {
-                endPoint = botCards.Location;
+                endPoint = botCardsPlace.Location;
                 multiplier = _botCards.Count;
             }
 
@@ -267,7 +274,7 @@ namespace BeltGUI
             {
                 Control = control
             };
-            animation.Animate(fieldCards.Location.X + _fieldCards.Count * 20, fieldCards.Location.Y);
+            animation.Animate(fieldCardsPlace.Location.X + _fieldCards.Count * 20, fieldCardsPlace.Location.Y);
             RefreshControls(controls, index);
 
             _fieldCards.Add(control);
@@ -295,43 +302,40 @@ namespace BeltGUI
         {
             foreach (Control control in controls)
             {
+                if (!_fieldCards.Contains(control))
+                {
+                    MoveToField(control);
+                }
+
                 MoveToStash(control);
             }
         }
 
         private void MoveToStash(Control control)
         {
+            Point endPoint;
             int index = _fieldCards.IndexOf(control);
-            if (index < 0 || index > _fieldCards.Count)
-            {
-                return;
-            }
 
-            Point destinationPoint;
             if (CurrentPlayer.Equals(PlayerType.Player))
             {
-                _playerCards.RemoveAt(index);
-                _playerStore.Add(control);
-                destinationPoint = playerStore.Location;
-                playerStore.Visible = true;
+                _playerStash.Add(control);
+                endPoint = playerStashPlace.Location;
+                playerStashPlace.Visible = true;
             }
             else
             {
-                _botCards.RemoveAt(index);
-                _botStore.Add(control);
-                destinationPoint = botStore.Location;
-                botStore.Visible = true;
+                _botStash.Add(control);
+                endPoint = botStashPlace.Location;
+                botStashPlace.Visible = true;
             }
 
             _fieldCards.RemoveAt(index);
             control.BackgroundImage = Resources.back;
-            control.Enabled = false;
             ControlAnimation animation = new()
             {
                 Control = control
             };
-
-            animation.Animate(destinationPoint.X, destinationPoint.Y);
+            animation.Animate(endPoint.X, endPoint.Y);
             RefreshControls(_fieldCards, index);
         }
 
@@ -358,7 +362,7 @@ namespace BeltGUI
             Card card = _deck.DeckCards.FirstOrDefault();
             if (card is null)
             {
-                deck.Visible = false;
+                deckPlace.Visible = false;
                 return;
             }
 
@@ -376,7 +380,7 @@ namespace BeltGUI
         {
             int playerScore = 0;
             List<CardType> cardTypes = new();
-            foreach (Control control in _playerStore)
+            foreach (Control control in _playerStash)
             {
                 Card card = Cards.Find(x => x.ToString().Equals(control.Name));
                 if (cardTypes.Contains(card!.Type))
@@ -390,7 +394,7 @@ namespace BeltGUI
 
             int botScore = 0;
             cardTypes.Clear();
-            foreach (Control control in _botStore)
+            foreach (Control control in _botStash)
             {
                 Card card = Cards.Find(x => x.ToString().Equals(control.Name));
                 if (cardTypes.Contains(card!.Type))
