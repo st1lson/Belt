@@ -92,8 +92,8 @@ namespace BeltGUI
             Control control = sender as Control;
             Card card = Cards.Find(x => x.ToString().Equals(control?.Name));
             MoveToField(control);
-            List<Control> controls = TryGetCards(_playerCards, card!.Type);
-            if (controls is not null && controls.Count >= 3)
+            List<Control> controls = TryGetCards(_playerCards, control, card);
+            if (controls is not null)
             {
                 MoveToStash(controls);
             }
@@ -141,8 +141,8 @@ namespace BeltGUI
 
             botControl.BackgroundImage = card.CardFace;
             MoveToField(botControl);
-            List<Control> controls = TryGetCards(_botCards, card.Type);
-            if (controls is not null && controls.Count >= 3)
+            List<Control> controls = TryGetCards(_botCards, botControl, card);
+            if (controls is not null)
             {
                 MoveToStash(controls);
             }
@@ -158,11 +158,12 @@ namespace BeltGUI
             CurrentPlayer = PlayerType.Player;
         }
 
-        private List<Control> TryGetCards(List<Control> controls, CardType cardType)
+        private List<Control> TryGetCards(List<Control> controls, Control parentControl, Card card)
         {
+            CardType cardType = card.Type;
             int counter = controls.Select(control => Cards.Find(x => x.ToString().Equals(control?.Name))!.Type).Count(fieldCardType => fieldCardType == cardType);
 
-            if (counter < 3)
+            if (counter < 2)
             {
                 return default;
             }
@@ -209,7 +210,10 @@ namespace BeltGUI
             foreach (Control control in toMove)
             {
                 MoveToField(control);
+                control.Visible = false;
             }
+
+            parentControl.Visible = false;
 
             return fieldControls;
         }
@@ -344,8 +348,8 @@ namespace BeltGUI
                 botStashPlace.Visible = true;
             }
 
+            control.Visible = false;
             _fieldCards.RemoveAt(index);
-            control.BackgroundImage = Resources.back;
             ControlAnimation animation = new()
             {
                 Control = control
