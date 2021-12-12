@@ -10,11 +10,13 @@ namespace BeltLib
     {
         public List<Card> Cards { get; }
         private readonly Deck _deck;
+        private readonly List<Card> _playedCards;
 
         public GameLogic(Deck deck)
         {
+            Cards = deck.DeckCards;
             _deck = deck;
-            Cards = _deck.DeckCards;
+            _playedCards = new List<Card>();
         }
 
         public Card SelectCard(List<Card> botCards, List<Card> fieldCards)
@@ -44,9 +46,8 @@ namespace BeltLib
                 int index = Array.IndexOf(handCards, card);
                 Card[] newHandCards = new Card[handCards.Length];
                 Card[] newFieldCards = new Card[fieldCards.Length + 1];
-                Array.Copy(handCards, newHandCards, handCards.Length);
                 Array.Copy(fieldCards, newFieldCards, fieldCards.Length);
-                newHandCards = newHandCards.Where(x => x != newHandCards[index]).ToArray();
+                newHandCards = handCards.Where(x => x != newHandCards[index]).ToArray();
                 newFieldCards[^1] = card;
                 children[i] = new GameState(newHandCards, newFieldCards);
             }
@@ -56,7 +57,9 @@ namespace BeltLib
 
         private static GameState[] GeneratePossibleHandCards(GameState state)
         {
-            return default;
+            GameState[] possibleHandCards = new GameState[short.MaxValue];
+
+            return possibleHandCards;
         }
 
         private static Card SelectCard(GameState initialState, GameState state)
