@@ -90,11 +90,10 @@ namespace BeltGUI
             }
 
             Control control = sender as Control;
-            Card card = _gameLogic.SelectCard(ConvertToCard(_playerCards), ConvertToCard(_fieldCards));
-            Controls.SetChildIndex(control!, _fieldCards.Count);
+            Card card = Cards.Find(x => x.ToString().Equals(control?.Name));
             MoveToField(control);
-            List<Control> controls = TryGetCards(_playerCards, card.Type);
-            if (controls is not null)
+            List<Control> controls = TryGetCards(_playerCards, card!.Type);
+            if (controls is not null && controls.Count >= 3)
             {
                 MoveToStash(controls);
             }
@@ -141,10 +140,9 @@ namespace BeltGUI
             }
 
             botControl.BackgroundImage = card.CardFace;
-            Controls.SetChildIndex(botControl, _fieldCards.Count);
             MoveToField(botControl);
             List<Control> controls = TryGetCards(_botCards, card.Type);
-            if (controls is not null)
+            if (controls is not null && controls.Count >= 3)
             {
                 MoveToStash(controls);
             }
@@ -160,7 +158,7 @@ namespace BeltGUI
             CurrentPlayer = PlayerType.Player;
         }
 
-        private List<Control> TryGetCards(IEnumerable<Control> controls, CardType cardType)
+        private List<Control> TryGetCards(List<Control> controls, CardType cardType)
         {
             int counter = controls.Select(control => Cards.Find(x => x.ToString().Equals(control?.Name))!.Type).Count(fieldCardType => fieldCardType == cardType);
 
@@ -204,6 +202,13 @@ namespace BeltGUI
                         fieldControls.Add(fieldCard);
                     }
                 }
+            }
+
+            List<Control> toMove = controls.Where(control =>
+                cardType == Cards.Find(x => x.ToString().Equals(control?.Name))!.Type).ToList();
+            foreach (Control control in toMove)
+            {
+                MoveToField(control);
             }
 
             return fieldControls;
@@ -298,17 +303,27 @@ namespace BeltGUI
             }
         }
 
+        private void RefreshControls(IReadOnlyList<Control> controls)
+        {
+            for (int i = 0; i < controls.Count; i++)
+            {
+                Controls.SetChildIndex(controls[i], Math.Abs(i - controls.Count));
+                ControlAnimation animation = new()
+                {
+                    Control = controls[i]
+                };
+                animation.Animate(controls[i].Location.X + 20, controls[i].Location.Y);
+            }
+        }
+
         private void MoveToStash(List<Control> controls)
         {
             foreach (Control control in controls)
             {
-                if (!_fieldCards.Contains(control))
-                {
-                    MoveToField(control);
-                }
-
                 MoveToStash(control);
             }
+
+            RefreshControls(_fieldCards);
         }
 
         private void MoveToStash(Control control)
@@ -336,7 +351,6 @@ namespace BeltGUI
                 Control = control
             };
             animation.Animate(endPoint.X, endPoint.Y);
-            RefreshControls(_fieldCards, index);
         }
 
         private void InitializeDeck()

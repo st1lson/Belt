@@ -57,7 +57,7 @@
             // fieldCardsPlace
             // 
             this.fieldCardsPlace.BackColor = System.Drawing.Color.Transparent;
-            this.fieldCardsPlace.Location = new System.Drawing.Point(333, 250);
+            this.fieldCardsPlace.Location = new System.Drawing.Point(240, 250);
             this.fieldCardsPlace.Name = "fieldCardsPlace";
             this.fieldCardsPlace.Size = new System.Drawing.Size(105, 155);
             this.fieldCardsPlace.TabIndex = 2;
