@@ -388,20 +388,6 @@ namespace BeltGUI
             _deck.Shuffle();
         }
 
-        private void DeckClick(object sender, EventArgs e)
-        {
-            Card card = _deck.DeckCards.FirstOrDefault();
-            if (card is null)
-            {
-                deckPlace.Visible = false;
-                return;
-            }
-
-            _deck.DeckCards.Remove(card);
-            Control control = AddButton(card);
-            MoveFromDeck(control, card);
-        }
-
         private List<Card> ConvertToCards(List<Control> controls)
         {
             return controls.Select(control => Cards.Find(x => x.ToString().Equals(control.Name))).ToList();

@@ -72,8 +72,8 @@
             this.deckPlace.Name = "deckPlace";
             this.deckPlace.Size = new System.Drawing.Size(105, 155);
             this.deckPlace.TabIndex = 3;
+            this.Enabled = false;
             this.deckPlace.TabStop = false;
-            this.deckPlace.Click += new System.EventHandler(this.DeckClick);
             // 
             // botStashPlace
             // 

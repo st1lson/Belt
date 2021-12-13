@@ -33,7 +33,7 @@ namespace BeltLib.AlphaBetaPruning
             int bestValue = int.MinValue;
             foreach (T child in children)
             {
-                int value = MiniMax(child, possibleHands, 2, !maximize);
+                int value = MiniMax(child, possibleHands, 1, !maximize);
                 if (maximize && value > bestValue)
                 {
                     bestValue = value;
@@ -52,7 +52,7 @@ namespace BeltLib.AlphaBetaPruning
 
         private int MiniMax(T state, T[] possibleHands, int depth, bool maximize, int alpha = int.MaxValue, int beta = int.MinValue)
         {
-            if (!maximize)
+            if (maximize)
             {
                 possibleHands = GeneratePossibleHandCards(state);
             }
@@ -65,7 +65,6 @@ namespace BeltLib.AlphaBetaPruning
             T[] children = GenerateChildren(state);
 
             int value = maximize ? int.MinValue : int.MaxValue;
-
             foreach (T child in children)
             {
                 int nextStateValue = MiniMax(child, possibleHands, depth - 1, !maximize, alpha, beta);
