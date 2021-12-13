@@ -253,6 +253,7 @@ namespace BeltGUI
                 multiplier = _botCards.Count;
             }
 
+            Controls.SetChildIndex(control, 10 + multiplier - 1);
             ControlAnimation animation = new()
             {
                 Control = control
@@ -290,6 +291,7 @@ namespace BeltGUI
                 controls = _botCards;
             }
 
+            Controls.SetChildIndex(control, 30 + _fieldCards.Count - 1);
             control.Enabled = false;
             ControlAnimation animation = new()
             {

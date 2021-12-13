@@ -46,7 +46,7 @@
             // StartButton
             // 
             this.StartButton.Font = new System.Drawing.Font("Segoe UI", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.StartButton.Location = new System.Drawing.Point(580, 540);
+            this.StartButton.Location = new System.Drawing.Point(750, 540);
             this.StartButton.Name = "StartButton";
             this.StartButton.Size = new System.Drawing.Size(200, 75);
             this.StartButton.TabIndex = 1;
@@ -68,11 +68,11 @@
             // 
             this.deckPlace.BackColor = System.Drawing.Color.Transparent;
             this.deckPlace.BackgroundImage = global::BeltGUI.Properties.Resources.back;
+            this.deckPlace.Enabled = false;
             this.deckPlace.Location = new System.Drawing.Point(20, 250);
             this.deckPlace.Name = "deckPlace";
             this.deckPlace.Size = new System.Drawing.Size(105, 155);
             this.deckPlace.TabIndex = 3;
-            this.Enabled = false;
             this.deckPlace.TabStop = false;
             // 
             // botStashPlace
@@ -122,7 +122,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.ForestGreen;
-            this.ClientSize = new System.Drawing.Size(1264, 681);
+            this.ClientSize = new System.Drawing.Size(1584, 681);
             this.Controls.Add(this.playerStashPlace);
             this.Controls.Add(this.botCardsPlace);
             this.Controls.Add(this.playerCardsPlace);
