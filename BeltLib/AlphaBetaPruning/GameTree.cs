@@ -1,8 +1,8 @@
 ﻿using BeltLib.Core;
+using BeltLib.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using BeltLib.Enums;
 
 namespace BeltLib.AlphaBetaPruning
 {
@@ -23,23 +23,26 @@ namespace BeltLib.AlphaBetaPruning
         public T GetTheBest(T state, bool maximize = true)
         {
             T[] children = GenerateChildren(state);
-            if (children.Length == 0)
+            if (children.Length is 0 or 1)
             {
-                return default;
+                return children.Length is 0 ? default : children[0];
             }
 
             T[] possibleHands = GeneratePossibleHandCards(state);
             T bestState = children[0];
+            int bestValue = int.MinValue;
             foreach (T child in children)
             {
                 int value = MiniMax(child, possibleHands, 2, !maximize);
-                if (maximize && value > Evaluate(child))
+                if (maximize && value > bestValue)
                 {
+                    bestValue = value;
                     bestState = child;
                 }
 
-                if (!maximize && value < Evaluate(child))
+                if (!maximize && value < bestValue)
                 {
+                    bestValue = value;
                     bestState = child;
                 }
             }
@@ -49,6 +52,11 @@ namespace BeltLib.AlphaBetaPruning
 
         private int MiniMax(T state, T[] possibleHands, int depth, bool maximize, int alpha = int.MaxValue, int beta = int.MinValue)
         {
+            if (!maximize)
+            {
+                possibleHands = GeneratePossibleHandCards(state);
+            }
+
             if (depth <= 0)
             {
                 return possibleHands.Sum(Evaluate);
@@ -56,12 +64,8 @@ namespace BeltLib.AlphaBetaPruning
 
             T[] children = GenerateChildren(state);
 
-            if (maximize)
-            {
-                possibleHands = GeneratePossibleHandCards(state);
-            }
-
             int value = maximize ? int.MinValue : int.MaxValue;
+
             foreach (T child in children)
             {
                 int nextStateValue = MiniMax(child, possibleHands, depth - 1, !maximize, alpha, beta);

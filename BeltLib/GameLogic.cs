@@ -19,7 +19,7 @@ namespace BeltLib
 
         public Card SelectCard(List<Card> botCards, List<Card> fieldCards, List<Card> possibleCards)
         {
-            if (botCards.Count < 1)
+            if (botCards.Count <= 0)
             {
                 return default;
             }
@@ -28,7 +28,7 @@ namespace BeltLib
             GameTree<GameState> gameTree = new(GenerateChildren, GeneratePossibleHandCards, GetCard, possibleCards);
             GameState bestState = gameTree.GetTheBest(state);
 
-            return SelectCard(state, bestState);
+            return GetBestCard(state, bestState);
         }
 
         private Card GetCard() => _deck.DeckCards.FirstOrDefault();
@@ -41,10 +41,9 @@ namespace BeltLib
             {
                 Card card = cardsInHand[i];
                 int index = Array.IndexOf(cardsInHand, card);
-                Card[] newHandCards = new Card[cardsInHand.Length];
                 Card[] newFieldCards = new Card[cardsOnField.Length + 1];
                 Array.Copy(cardsOnField, newFieldCards, cardsOnField.Length);
-                newHandCards = cardsInHand.Where(x => x != newHandCards[index]).ToArray();
+                Card[] newHandCards = cardsInHand.Where(x => x != cardsInHand[index]).ToArray();
                 newFieldCards[^1] = card;
                 children[i] = new GameState(newHandCards, possibleEnemyCards, newFieldCards, possibleCards);
             }
@@ -71,8 +70,8 @@ namespace BeltLib
                         card = possibleCard[index];
                     }
 
-                    possibleCard[index] = null;
                     cards[j] = card;
+                    possibleCard[index] = null;
                 }
 
                 possibleHandCards[i] = new GameState(cardsInHand, cards, cardsOnField, possibleCards);
@@ -81,7 +80,7 @@ namespace BeltLib
             return possibleHandCards;
         }
 
-        private static Card SelectCard(GameState initialState, GameState state)
+        private static Card GetBestCard(GameState initialState, GameState state)
         {
             return initialState.CardsInHand.FirstOrDefault(card => state.CardsOnField.Contains(card));
         }

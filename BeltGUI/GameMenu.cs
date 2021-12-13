@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BeltGUI
@@ -36,10 +35,10 @@ namespace BeltGUI
             _fieldCards = new List<Control>();
             _playerStash = new List<Control>();
             _botStash = new List<Control>();
+            _possibleCards = new List<Card>();
             _deck = new Deck();
             _gameLogic = new GameLogic(_deck);
             InitializeDeck();
-            _possibleCards = Cards;
         }
 
         private void InitializeGame()
@@ -96,6 +95,7 @@ namespace BeltGUI
             Control control = sender as Control;
             Card card = Cards.Find(x => x.ToString().Equals(control?.Name));
             MoveToField(control);
+            _possibleCards.Remove(card);
             List<Control> controls = TryGetCards(_playerCards, control, card);
             if (controls is not null)
             {
@@ -112,6 +112,13 @@ namespace BeltGUI
 
             CurrentPlayer = PlayerType.Bot;
             BotMove();
+
+            while (_playerCards.Count == 0 && _botCards.Count != 0)
+            {
+                CurrentPlayer = PlayerType.Bot;
+                BotMove();
+            }
+
             if (_botCards.Count != 0 || _playerCards.Count != 0)
             {
                 return;
@@ -134,9 +141,9 @@ namespace BeltGUI
             }
         }
 
-        private async void BotMove()
+        private void BotMove()
         {
-            Card card = await Task.Run(() =>_gameLogic.SelectCard(ConvertToCard(_botCards), ConvertToCard(_fieldCards), _possibleCards));
+            Card card = _gameLogic.SelectCard(ConvertToCards(_botCards), ConvertToCards(_fieldCards), _possibleCards);
             Control botControl = _botCards.Find(x => x.Name.Equals(card.ToString()));
             if (botControl is null)
             {
@@ -163,7 +170,7 @@ namespace BeltGUI
             CurrentPlayer = PlayerType.Player;
         }
 
-        private List<Control> TryGetCards(List<Control> controls, Control parentControl, Card card)
+        private List<Control> TryGetCards(IReadOnlyCollection<Control> controls, Control parentControl, Card card)
         {
             CardType cardType = card.Type;
             int counter = controls.Select(control => Cards.Find(x => x.ToString().Equals(control?.Name))!.Type).Count(fieldCardType => fieldCardType == cardType);
@@ -374,6 +381,7 @@ namespace BeltGUI
                     Card card = new(suit, type, cardFace!, cardBack!);
                     _deck.DeckCards.Add(card);
                     Cards.Add(card);
+                    _possibleCards.Add(card);
                 }
             }
 
@@ -394,9 +402,9 @@ namespace BeltGUI
             MoveFromDeck(control, card);
         }
 
-        private List<Card> ConvertToCard(IEnumerable<Control> controls)
+        private List<Card> ConvertToCards(List<Control> controls)
         {
-            return controls.Select(control => Cards.Find(x => x.ToString().Equals(control?.Name))).ToList();
+            return controls.Select(control => Cards.Find(x => x.ToString().Equals(control.Name))).ToList();
         }
 
         private Winner SelectWinner()
