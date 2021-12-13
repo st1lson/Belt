@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BeltGUI
@@ -21,6 +22,7 @@ namespace BeltGUI
         private readonly List<Control> _fieldCards;
         private readonly List<Control> _playerStash;
         private readonly List<Control> _botStash;
+        private readonly List<Card> _possibleCards;
         private readonly GameLogic _gameLogic;
         private readonly Deck _deck;
         public GameMenu()
@@ -37,6 +39,7 @@ namespace BeltGUI
             _deck = new Deck();
             _gameLogic = new GameLogic(_deck);
             InitializeDeck();
+            _possibleCards = Cards;
         }
 
         private void InitializeGame()
@@ -48,6 +51,7 @@ namespace BeltGUI
                 _deck.DeckCards.Remove(card);
                 Control control = AddButton(card);
                 MoveFromDeck(control, card);
+                _possibleCards.Remove(card);
             }
 
             CurrentPlayer = PlayerType.Player;
@@ -130,9 +134,9 @@ namespace BeltGUI
             }
         }
 
-        private void BotMove()
+        private async void BotMove()
         {
-            Card card = _gameLogic.SelectCard(ConvertToCard(_botCards), ConvertToCard(_fieldCards));
+            Card card = await Task.Run(() =>_gameLogic.SelectCard(ConvertToCard(_botCards), ConvertToCard(_fieldCards), _possibleCards));
             Control botControl = _botCards.Find(x => x.Name.Equals(card.ToString()));
             if (botControl is null)
             {
@@ -153,6 +157,7 @@ namespace BeltGUI
                 _deck.DeckCards.Remove(newCard);
                 Control newControl = AddButton(newCard);
                 MoveFromDeck(newControl, newCard);
+                _possibleCards.Remove(card);
             }
 
             CurrentPlayer = PlayerType.Player;

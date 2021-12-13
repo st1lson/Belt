@@ -10,25 +10,22 @@ namespace BeltLib
     {
         public List<Card> Cards { get; }
         private readonly Deck _deck;
-        private readonly List<Card> _playedCards;
 
         public GameLogic(Deck deck)
         {
             Cards = deck.DeckCards;
             _deck = deck;
-            _playedCards = new List<Card>();
         }
 
-        public Card SelectCard(List<Card> botCards, List<Card> fieldCards)
+        public Card SelectCard(List<Card> botCards, List<Card> fieldCards, List<Card> possibleCards)
         {
             if (botCards.Count < 1)
             {
                 return default;
             }
 
-            GameState state = new(botCards.ToArray(), fieldCards.ToArray());
-            GameTree<GameState> gameTree = new(GenerateChildren, GeneratePossibleHandCards, GetCard);
-
+            GameState state = new(botCards.ToArray(), new Card[4], fieldCards.ToArray(), possibleCards);
+            GameTree<GameState> gameTree = new(GenerateChildren, GeneratePossibleHandCards, GetCard, possibleCards);
             GameState bestState = gameTree.GetTheBest(state);
 
             return SelectCard(state, bestState);
@@ -38,18 +35,18 @@ namespace BeltLib
 
         private static GameState[] GenerateChildren(GameState state)
         {
-            GameState[] children = new GameState[state.CardsInHand.Length];
-            (Card[] handCards, Card[] fieldCards) = state;
-            for (int i = 0; i < handCards.Length; i++)
+            var (cardsInHand, possibleEnemyCards, cardsOnField, possibleCards) = state;
+            GameState[] children = new GameState[cardsInHand.Length];
+            for (int i = 0; i < cardsInHand.Length; i++)
             {
-                Card card = handCards[i];
-                int index = Array.IndexOf(handCards, card);
-                Card[] newHandCards = new Card[handCards.Length];
-                Card[] newFieldCards = new Card[fieldCards.Length + 1];
-                Array.Copy(fieldCards, newFieldCards, fieldCards.Length);
-                newHandCards = handCards.Where(x => x != newHandCards[index]).ToArray();
+                Card card = cardsInHand[i];
+                int index = Array.IndexOf(cardsInHand, card);
+                Card[] newHandCards = new Card[cardsInHand.Length];
+                Card[] newFieldCards = new Card[cardsOnField.Length + 1];
+                Array.Copy(cardsOnField, newFieldCards, cardsOnField.Length);
+                newHandCards = cardsInHand.Where(x => x != newHandCards[index]).ToArray();
                 newFieldCards[^1] = card;
-                children[i] = new GameState(newHandCards, newFieldCards);
+                children[i] = new GameState(newHandCards, possibleEnemyCards, newFieldCards, possibleCards);
             }
 
             return children;
@@ -57,7 +54,29 @@ namespace BeltLib
 
         private static GameState[] GeneratePossibleHandCards(GameState state)
         {
-            GameState[] possibleHandCards = new GameState[short.MaxValue];
+            var (cardsInHand, _, cardsOnField, possibleCards) = state;
+            GameState[] possibleHandCards = new GameState[100];
+            Random random = new();
+            for (int i = 0; i < possibleHandCards.Length; i++)
+            {
+                Card[] cards = new Card[4];
+                Card[] possibleCard = possibleCards.ToArray();
+                for (int j = 0; j < cards.Length; j++)
+                {
+                    int index = random.Next(possibleCard.Length);
+                    Card card = possibleCard[index];
+                    while (cards.Contains(card) || possibleCard[index] is null)
+                    {
+                        index = random.Next(possibleCard.Length);
+                        card = possibleCard[index];
+                    }
+
+                    possibleCard[index] = null;
+                    cards[j] = card;
+                }
+
+                possibleHandCards[i] = new GameState(cardsInHand, cards, cardsOnField, possibleCards);
+            }
 
             return possibleHandCards;
         }
