@@ -1,4 +1,4 @@
-﻿using BeltLib.Core;
+using BeltLib.Core;
 using BeltLib.Enums;
 using System;
 using System.Collections.Generic;
@@ -10,13 +10,11 @@ namespace BeltLib.AlphaBetaPruning
     {
         public readonly Func<T, T[]> GenerateChildren;
         public readonly Func<T, T[]> GeneratePossibleHandCards;
-        public readonly Func<Card> GetCard;
         public readonly List<Card> PossibleCards;
-        public GameTree(Func<T, T[]> generateChildren, Func<T, T[]> generatePossibleHandCards, Func<Card> getCard, List<Card> possibleCards)
+        public GameTree(Func<T, T[]> generateChildren, Func<T, T[]> generatePossibleHandCards, List<Card> possibleCards)
         {
             GenerateChildren = generateChildren;
             GeneratePossibleHandCards = generatePossibleHandCards;
-            GetCard = getCard;
             PossibleCards = possibleCards;
         }
 
@@ -33,18 +31,14 @@ namespace BeltLib.AlphaBetaPruning
             int bestValue = int.MinValue;
             foreach (T child in children)
             {
-                int value = MiniMax(child, possibleHands, 1, !maximize);
-                if (maximize && value > bestValue)
+                int value = MiniMax(child, possibleHands, 0, !maximize);
+                if (!maximize || value <= bestValue)
                 {
-                    bestValue = value;
-                    bestState = child;
+                    continue;
                 }
 
-                if (!maximize && value < bestValue)
-                {
-                    bestValue = value;
-                    bestState = child;
-                }
+                bestValue = value;
+                bestState = child;
             }
 
             return bestState;

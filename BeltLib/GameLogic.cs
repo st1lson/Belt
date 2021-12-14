@@ -25,7 +25,7 @@ namespace BeltLib
             }
 
             GameState state = new(botCards.ToArray(), new Card[4], fieldCards.ToArray(), possibleCards);
-            GameTree<GameState> gameTree = new(GenerateChildren, GeneratePossibleHandCards, GetCard, possibleCards);
+            GameTree<GameState> gameTree = new(GenerateChildren, GeneratePossibleHandCards, possibleCards);
             GameState bestState = gameTree.GetTheBest(state);
 
             return GetBestCard(state, bestState);
@@ -54,7 +54,7 @@ namespace BeltLib
         private static GameState[] GeneratePossibleHandCards(GameState state)
         {
             var (cardsInHand, _, cardsOnField, possibleCards) = state;
-            GameState[] possibleHandCards = new GameState[100];
+            GameState[] possibleHandCards = new GameState[200000];
             Random random = new();
             for (int i = 0; i < possibleHandCards.Length; i++)
             {

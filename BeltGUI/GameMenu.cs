@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BeltGUI
@@ -84,7 +85,7 @@ namespace BeltGUI
             return button;
         }
 
-        private void CardClick(object sender, EventArgs e)
+        private async void CardClick(object sender, EventArgs e)
         {
             if (_deck.DeckCards.Count == 0)
             {
@@ -116,6 +117,7 @@ namespace BeltGUI
             while (_playerCards.Count == 0 && _botCards.Count != 0)
             {
                 CurrentPlayer = PlayerType.Bot;
+                await Task.Delay(500);
                 BotMove();
             }
 
@@ -141,9 +143,9 @@ namespace BeltGUI
             }
         }
 
-        private void BotMove()
+        private async void BotMove()
         {
-            Card card = _gameLogic.SelectCard(ConvertToCards(_botCards), ConvertToCards(_fieldCards), _possibleCards);
+            Card card = await Task.Run(() => _gameLogic.SelectCard(ConvertToCards(_botCards), ConvertToCards(_fieldCards), _possibleCards));
             Control botControl = _botCards.Find(x => x.Name.Equals(card.ToString()));
             if (botControl is null)
             {
@@ -221,8 +223,8 @@ namespace BeltGUI
                 cardType == Cards.Find(x => x.ToString().Equals(control?.Name))!.Type).ToList();
             foreach (Control control in toMove)
             {
-                MoveToField(control);
                 control.Visible = false;
+                MoveToField(control);
             }
 
             parentControl.Visible = false;
